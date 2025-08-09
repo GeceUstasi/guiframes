@@ -1,12 +1,9 @@
--- ESP System with Fixed Horizontal Framework
--- First, let's fix the framework and make it horizontal
-
+-- ESP System with Classic Sidebar Layout + Beautiful Buttons
 local GuiFramework = {}
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local HttpService = game:GetService("HttpService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -145,12 +142,12 @@ function GuiFramework:CreateNotification(config)
     return notifContainer
 end
 
--- Main Create Window Function (HORIZONTAL LAYOUT)
+-- Main Create Window Function (SIDEBAR LAYOUT)
 function GuiFramework:CreateWindow(config)
     local windowConfig = {
         Name = config.Name or "Framework GUI",
         Theme = config.Theme or "Default",
-        Size = config.Size or {800, 500}, -- Wider for horizontal
+        Size = config.Size or {700, 500},
         KeySystem = config.KeySystem or false
     }
 
@@ -166,7 +163,7 @@ function GuiFramework:CreateWindow(config)
 
     -- Create ScreenGui
     local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "HorizontalFrameworkGUI"
+    screenGui.Name = "SidebarFrameworkGUI"
     screenGui.Parent = playerGui
     screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
@@ -256,40 +253,64 @@ function GuiFramework:CreateWindow(config)
         end
     end)
 
-    -- HORIZONTAL Tab Container (Top tabs instead of sidebar)
-    local tabContainer = Instance.new("Frame")
+    -- SIDEBAR (Sol taraf - Tabs)
+    local sidebar = Instance.new("Frame")
+    sidebar.Name = "Sidebar"
+    sidebar.Parent = mainContainer
+    sidebar.Size = UDim2.new(0, 180, 1, -50)
+    sidebar.Position = UDim2.new(0, 10, 0, 45)
+    sidebar.BackgroundColor3 = currentTheme.Background
+    sidebar.BackgroundTransparency = 0.2
+    sidebar.BorderSizePixel = 0
+
+    createCorner(sidebar, 12)
+    createStroke(sidebar, currentTheme.Primary, 1, 0.5)
+
+    -- Tab Container (Sidebar içinde)
+    local tabContainer = Instance.new("ScrollingFrame")
     tabContainer.Name = "TabContainer"
-    tabContainer.Parent = mainContainer
-    tabContainer.Size = UDim2.new(1, -20, 0, 35)
-    tabContainer.Position = UDim2.new(0, 10, 0, 50)
+    tabContainer.Parent = sidebar
+    tabContainer.Size = UDim2.new(1, -10, 1, -10)
+    tabContainer.Position = UDim2.new(0, 5, 0, 5)
     tabContainer.BackgroundTransparency = 1
+    tabContainer.BorderSizePixel = 0
+    tabContainer.ScrollBarThickness = 4
+    tabContainer.ScrollBarImageColor3 = currentTheme.Primary
+    tabContainer.ScrollBarImageTransparency = 0.3
 
     local tabLayout = Instance.new("UIListLayout")
     tabLayout.Parent = tabContainer
-    tabLayout.FillDirection = Enum.FillDirection.Horizontal -- HORIZONTAL!
+    tabLayout.FillDirection = Enum.FillDirection.Vertical -- VERTICAL tabs
     tabLayout.SortOrder = Enum.SortOrder.LayoutOrder
     tabLayout.Padding = UDim.new(0, 5)
 
-    -- Content Area (Below tabs)
+    -- Content Area (Sağ taraf - İçerik)
     local contentArea = Instance.new("Frame")
     contentArea.Name = "ContentArea"
     contentArea.Parent = mainContainer
-    contentArea.Size = UDim2.new(1, -20, 1, -100)
-    contentArea.Position = UDim2.new(0, 10, 0, 95)
-    contentArea.BackgroundTransparency = 1
+    contentArea.Size = UDim2.new(0, 495, 1, -50)
+    contentArea.Position = UDim2.new(0, 200, 0, 45)
+    contentArea.BackgroundColor3 = currentTheme.Background
+    contentArea.BackgroundTransparency = 0.3
+    contentArea.BorderSizePixel = 0
+
+    createCorner(contentArea, 12)
 
     -- Tab Content Container
     local tabContentContainer = Instance.new("Frame")
     tabContentContainer.Name = "TabContentContainer"
     tabContentContainer.Parent = contentArea
-    tabContentContainer.Size = UDim2.new(1, 0, 1, 0)
+    tabContentContainer.Size = UDim2.new(1, -20, 1, -20)
+    tabContentContainer.Position = UDim2.new(0, 10, 0, 10)
     tabContentContainer.BackgroundTransparency = 1
 
     -- Window object
     local Window = {
         ScreenGui = screenGui,
         MainContainer = mainContainer,
+        Sidebar = sidebar,
         TabContainer = tabContainer,
+        ContentArea = contentArea,
         TabContentContainer = tabContentContainer,
         TabLayout = tabLayout,
         Tabs = {},
@@ -308,20 +329,41 @@ function GuiFramework:CreateWindow(config)
             Color = config.Color or currentTheme.Primary
         }
 
-        -- Tab Button (HORIZONTAL)
+        -- Tab Button (SIDEBAR style - Vertical)
         local tabButton = Instance.new("TextButton")
         tabButton.Name = "Tab_" .. tabConfig.Name
         tabButton.Parent = self.TabContainer
-        tabButton.Size = UDim2.new(0, 120, 1, 0) -- Fixed width for horizontal tabs
-        tabButton.BackgroundColor3 = currentTheme.Background
-        tabButton.BackgroundTransparency = 0.3
+        tabButton.Size = UDim2.new(1, 0, 0, 40) -- Fixed height for vertical tabs
+        tabButton.BackgroundColor3 = currentTheme.Secondary
+        tabButton.BackgroundTransparency = 0.4
         tabButton.BorderSizePixel = 0
-        tabButton.Text = tabConfig.Icon .. " " .. tabConfig.Name
-        tabButton.TextColor3 = Color3.fromRGB(150, 150, 180)
-        tabButton.TextSize = 12
-        tabButton.Font = Enum.Font.Gotham
+        tabButton.Text = ""
 
         createCorner(tabButton, 8)
+
+        -- Tab icon
+        local tabIcon = Instance.new("TextLabel")
+        tabIcon.Parent = tabButton
+        tabIcon.Size = UDim2.new(0, 25, 0, 25)
+        tabIcon.Position = UDim2.new(0, 8, 0.5, -12)
+        tabIcon.BackgroundTransparency = 1
+        tabIcon.Text = tabConfig.Icon
+        tabIcon.TextColor3 = Color3.fromRGB(150, 150, 180)
+        tabIcon.TextSize = 16
+        tabIcon.Font = Enum.Font.GothamBold
+        tabIcon.TextXAlignment = Enum.TextXAlignment.Center
+
+        -- Tab text
+        local tabText = Instance.new("TextLabel")
+        tabText.Parent = tabButton
+        tabText.Size = UDim2.new(1, -40, 1, 0)
+        tabText.Position = UDim2.new(0, 35, 0, 0)
+        tabText.BackgroundTransparency = 1
+        tabText.Text = tabConfig.Name
+        tabText.TextColor3 = Color3.fromRGB(150, 150, 180)
+        tabText.TextSize = 13
+        tabText.Font = Enum.Font.Gotham
+        tabText.TextXAlignment = Enum.TextXAlignment.Left
 
         -- Tab Content
         local tabContent = Instance.new("ScrollingFrame")
@@ -338,7 +380,7 @@ function GuiFramework:CreateWindow(config)
         local contentLayout = Instance.new("UIListLayout")
         contentLayout.Parent = tabContent
         contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
-        contentLayout.Padding = UDim.new(0, 8)
+        contentLayout.Padding = UDim.new(0, 10)
 
         -- Tab object
         local Tab = {
@@ -346,6 +388,8 @@ function GuiFramework:CreateWindow(config)
             Button = tabButton,
             Content = tabContent,
             Layout = contentLayout,
+            Icon = tabIcon,
+            Text = tabText,
             Config = tabConfig,
             Elements = {},
             Window = self
@@ -354,23 +398,21 @@ function GuiFramework:CreateWindow(config)
         -- Tab hover effects
         tabButton.MouseEnter:Connect(function()
             if Tab ~= self.CurrentTab then
-                tween(tabButton, {Time = 0.2}, {
-                    BackgroundTransparency = 0.1,
-                    TextColor3 = Color3.fromRGB(220, 220, 240)
-                }):Play()
+                tween(tabButton, {Time = 0.2}, {BackgroundTransparency = 0.2}):Play()
+                tween(tabText, {Time = 0.2}, {TextColor3 = Color3.fromRGB(220, 220, 240)}):Play()
+                tween(tabIcon, {Time = 0.2}, {TextColor3 = tabConfig.Color}):Play()
             end
         end)
 
         tabButton.MouseLeave:Connect(function()
             if Tab ~= self.CurrentTab then
-                tween(tabButton, {Time = 0.2}, {
-                    BackgroundTransparency = 0.3,
-                    TextColor3 = Color3.fromRGB(150, 150, 180)
-                }):Play()
+                tween(tabButton, {Time = 0.2}, {BackgroundTransparency = 0.4}):Play()
+                tween(tabText, {Time = 0.2}, {TextColor3 = Color3.fromRGB(150, 150, 180)}):Play()
+                tween(tabIcon, {Time = 0.2}, {TextColor3 = Color3.fromRGB(150, 150, 180)}):Play()
             end
         end)
 
-        -- Tab click - FIXED!
+        -- Tab click
         tabButton.MouseButton1Click:Connect(function()
             self:SelectTab(Tab)
         end)
@@ -383,7 +425,7 @@ function GuiFramework:CreateWindow(config)
             self:SelectTab(Tab)
         end
 
-        -- Tab Methods
+        -- Tab Methods - BEAUTIFUL BUTTONS
         function Tab:CreateToggle(config)
             local toggleConfig = {
                 Name = config.Name or "Toggle",
@@ -394,57 +436,93 @@ function GuiFramework:CreateWindow(config)
 
             local container = Instance.new("Frame")
             container.Parent = self.Content
-            container.Size = UDim2.new(1, 0, 0, toggleConfig.Description ~= "" and 65 or 45)
+            container.Size = UDim2.new(1, 0, 0, toggleConfig.Description ~= "" and 70 or 50)
             container.BackgroundColor3 = currentTheme.Secondary
-            container.BackgroundTransparency = 0.2
+            container.BackgroundTransparency = 0.15
             container.BorderSizePixel = 0
 
-            createCorner(container, 8)
-            createStroke(container, currentTheme.Accent, 1, 0.6)
+            createCorner(container, 10)
+            createStroke(container, currentTheme.Accent, 1, 0.4)
+
+            -- Hover glow effect
+            local hoverGlow = Instance.new("Frame")
+            hoverGlow.Parent = container
+            hoverGlow.Size = UDim2.new(1, 4, 1, 4)
+            hoverGlow.Position = UDim2.new(0, -2, 0, -2)
+            hoverGlow.BackgroundColor3 = currentTheme.Primary
+            hoverGlow.BackgroundTransparency = 1
+            hoverGlow.BorderSizePixel = 0
+            hoverGlow.ZIndex = container.ZIndex - 1
+
+            createCorner(hoverGlow, 12)
 
             local label = Instance.new("TextLabel")
             label.Parent = container
             label.Size = UDim2.new(0.7, 0, toggleConfig.Description ~= "" and 0.5 or 1, 0)
-            label.Position = UDim2.new(0, 12, 0, 0)
+            label.Position = UDim2.new(0, 15, 0, 0)
             label.BackgroundTransparency = 1
             label.Text = toggleConfig.Name
             label.TextColor3 = currentTheme.Text
-            label.TextSize = 13
-            label.Font = Enum.Font.Gotham
+            label.TextSize = 14
+            label.Font = Enum.Font.GothamSemibold
             label.TextXAlignment = Enum.TextXAlignment.Left
 
             if toggleConfig.Description ~= "" then
                 local descLabel = Instance.new("TextLabel")
                 descLabel.Parent = container
-                descLabel.Size = UDim2.new(1, -15, 0.5, 0)
-                descLabel.Position = UDim2.new(0, 12, 0.5, 0)
+                descLabel.Size = UDim2.new(1, -20, 0.5, 0)
+                descLabel.Position = UDim2.new(0, 15, 0.5, 0)
                 descLabel.BackgroundTransparency = 1
                 descLabel.Text = toggleConfig.Description
                 descLabel.TextColor3 = Color3.fromRGB(180, 180, 200)
-                descLabel.TextSize = 10
+                descLabel.TextSize = 11
                 descLabel.Font = Enum.Font.Gotham
                 descLabel.TextXAlignment = Enum.TextXAlignment.Left
                 descLabel.TextWrapped = true
             end
 
-            -- Toggle switch
+            -- BEAUTIFUL Toggle switch
             local toggleBg = Instance.new("Frame")
             toggleBg.Parent = container
-            toggleBg.Size = UDim2.new(0, 45, 0, 22)
-            toggleBg.Position = UDim2.new(1, -55, 0.5, -11)
-            toggleBg.BackgroundColor3 = toggleConfig.Default and currentTheme.Primary or Color3.fromRGB(60, 60, 80)
+            toggleBg.Size = UDim2.new(0, 50, 0, 24)
+            toggleBg.Position = UDim2.new(1, -65, 0.5, -12)
+            toggleBg.BackgroundColor3 = toggleConfig.Default and currentTheme.Primary or Color3.fromRGB(40, 40, 60)
             toggleBg.BorderSizePixel = 0
 
-            createCorner(toggleBg, 11)
+            createCorner(toggleBg, 12)
+
+            -- Toggle glow
+            local toggleGlow = Instance.new("Frame")
+            toggleGlow.Parent = toggleBg
+            toggleGlow.Size = UDim2.new(1, 4, 1, 4)
+            toggleGlow.Position = UDim2.new(0, -2, 0, -2)
+            toggleGlow.BackgroundColor3 = currentTheme.Primary
+            toggleGlow.BackgroundTransparency = toggleConfig.Default and 0.7 or 1
+            toggleGlow.BorderSizePixel = 0
+            toggleGlow.ZIndex = toggleBg.ZIndex - 1
+
+            createCorner(toggleGlow, 14)
 
             local toggleCircle = Instance.new("Frame")
             toggleCircle.Parent = toggleBg
-            toggleCircle.Size = UDim2.new(0, 18, 0, 18)
-            toggleCircle.Position = toggleConfig.Default and UDim2.new(1, -20, 0.5, -9) or UDim2.new(0, 2, 0.5, -9)
+            toggleCircle.Size = UDim2.new(0, 20, 0, 20)
+            toggleCircle.Position = toggleConfig.Default and UDim2.new(1, -22, 0.5, -10) or UDim2.new(0, 2, 0.5, -10)
             toggleCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             toggleCircle.BorderSizePixel = 0
 
-            createCorner(toggleCircle, 9)
+            createCorner(toggleCircle, 10)
+
+            -- Circle shadow
+            local circleShadow = Instance.new("Frame")
+            circleShadow.Parent = toggleCircle
+            circleShadow.Size = UDim2.new(1, 2, 1, 2)
+            circleShadow.Position = UDim2.new(0, -1, 0, 1)
+            circleShadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+            circleShadow.BackgroundTransparency = 0.8
+            circleShadow.BorderSizePixel = 0
+            circleShadow.ZIndex = toggleCircle.ZIndex - 1
+
+            createCorner(circleShadow, 11)
 
             local button = Instance.new("TextButton")
             button.Parent = container
@@ -452,15 +530,28 @@ function GuiFramework:CreateWindow(config)
             button.BackgroundTransparency = 1
             button.Text = ""
 
+            -- Hover effects
+            button.MouseEnter:Connect(function()
+                tween(container, {Time = 0.2}, {BackgroundTransparency = 0.1}):Play()
+                tween(hoverGlow, {Time = 0.2}, {BackgroundTransparency = 0.8}):Play()
+            end)
+
+            button.MouseLeave:Connect(function()
+                tween(container, {Time = 0.2}, {BackgroundTransparency = 0.15}):Play()
+                tween(hoverGlow, {Time = 0.2}, {BackgroundTransparency = 1}):Play()
+            end)
+
             local isEnabled = toggleConfig.Default
             button.MouseButton1Click:Connect(function()
                 isEnabled = not isEnabled
                 
-                local bgColor = isEnabled and currentTheme.Primary or Color3.fromRGB(60, 60, 80)
-                local circlePos = isEnabled and UDim2.new(1, -20, 0.5, -9) or UDim2.new(0, 2, 0.5, -9)
+                local bgColor = isEnabled and currentTheme.Primary or Color3.fromRGB(40, 40, 60)
+                local circlePos = isEnabled and UDim2.new(1, -22, 0.5, -10) or UDim2.new(0, 2, 0.5, -10)
+                local glowTransparency = isEnabled and 0.7 or 1
                 
-                tween(toggleBg, {Time = 0.2}, {BackgroundColor3 = bgColor}):Play()
-                tween(toggleCircle, {Time = 0.2}, {Position = circlePos}):Play()
+                tween(toggleBg, {Time = 0.3}, {BackgroundColor3 = bgColor}):Play()
+                tween(toggleCircle, {Time = 0.3}, {Position = circlePos}):Play()
+                tween(toggleGlow, {Time = 0.3}, {BackgroundTransparency = glowTransparency}):Play()
                 
                 toggleConfig.Callback(isEnabled)
             end)
@@ -478,13 +569,38 @@ function GuiFramework:CreateWindow(config)
 
             local container = Instance.new("Frame")
             container.Parent = self.Content
-            container.Size = UDim2.new(1, 0, 0, buttonConfig.Description ~= "" and 60 or 40)
+            container.Size = UDim2.new(1, 0, 0, buttonConfig.Description ~= "" and 65 or 45)
             container.BackgroundColor3 = currentTheme.Secondary
-            container.BackgroundTransparency = 0.2
+            container.BackgroundTransparency = 0.15
             container.BorderSizePixel = 0
 
-            createCorner(container, 8)
-            createStroke(container, currentTheme.Primary, 1, 0.6)
+            createCorner(container, 10)
+            createStroke(container, currentTheme.Primary, 1, 0.4)
+
+            -- Gradient background
+            local gradient = Instance.new("UIGradient")
+            gradient.Parent = container
+            gradient.Color = ColorSequence.new{
+                ColorSequenceKeypoint.new(0, Color3.new(
+                    currentTheme.Secondary.R + 0.05,
+                    currentTheme.Secondary.G + 0.05,
+                    currentTheme.Secondary.B + 0.1
+                )),
+                ColorSequenceKeypoint.new(1, currentTheme.Secondary)
+            }
+            gradient.Rotation = 45
+
+            -- Hover glow
+            local hoverGlow = Instance.new("Frame")
+            hoverGlow.Parent = container
+            hoverGlow.Size = UDim2.new(1, 6, 1, 6)
+            hoverGlow.Position = UDim2.new(0, -3, 0, -3)
+            hoverGlow.BackgroundColor3 = currentTheme.Primary
+            hoverGlow.BackgroundTransparency = 1
+            hoverGlow.BorderSizePixel = 0
+            hoverGlow.ZIndex = container.ZIndex - 1
+
+            createCorner(hoverGlow, 13)
 
             local button = Instance.new("TextButton")
             button.Parent = container
@@ -493,12 +609,12 @@ function GuiFramework:CreateWindow(config)
             button.Text = buttonConfig.Name
             button.TextColor3 = currentTheme.Text
             button.TextSize = 14
-            button.Font = Enum.Font.GothamBold
+            button.Font = Enum.Font.GothamSemibold
 
             if buttonConfig.Description ~= "" then
                 local descLabel = Instance.new("TextLabel")
                 descLabel.Parent = container
-                descLabel.Size = UDim2.new(1, -15, 0.4, 0)
+                descLabel.Size = UDim2.new(1, -20, 0.4, 0)
                 descLabel.Position = UDim2.new(0, 10, 0.6, 0)
                 descLabel.BackgroundTransparency = 1
                 descLabel.Text = buttonConfig.Description
@@ -509,15 +625,25 @@ function GuiFramework:CreateWindow(config)
                 descLabel.TextWrapped = true
             end
 
+            -- Beautiful hover effects
             button.MouseEnter:Connect(function()
-                tween(container, {Time = 0.2}, {BackgroundTransparency = 0.1}):Play()
+                tween(container, {Time = 0.2}, {BackgroundTransparency = 0.05}):Play()
+                tween(hoverGlow, {Time = 0.2}, {BackgroundTransparency = 0.7}):Play()
+                tween(button, {Time = 0.2}, {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
             end)
 
             button.MouseLeave:Connect(function()
-                tween(container, {Time = 0.2}, {BackgroundTransparency = 0.2}):Play()
+                tween(container, {Time = 0.2}, {BackgroundTransparency = 0.15}):Play()
+                tween(hoverGlow, {Time = 0.2}, {BackgroundTransparency = 1}):Play()
+                tween(button, {Time = 0.2}, {TextColor3 = currentTheme.Text}):Play()
             end)
 
             button.MouseButton1Click:Connect(function()
+                -- Click animation
+                tween(container, {Time = 0.1}, {Size = UDim2.new(1, -4, 0, (buttonConfig.Description ~= "" and 65 or 45) - 2)}):Play()
+                wait(0.1)
+                tween(container, {Time = 0.1}, {Size = UDim2.new(1, 0, 0, buttonConfig.Description ~= "" and 65 or 45)}):Play()
+                
                 buttonConfig.Callback()
             end)
 
@@ -526,21 +652,20 @@ function GuiFramework:CreateWindow(config)
         end
 
         function Tab:UpdateCanvasSize()
-            self.Content.CanvasSize = UDim2.new(0, 0, 0, self.Layout.AbsoluteContentSize.Y + 15)
+            self.Content.CanvasSize = UDim2.new(0, 0, 0, self.Layout.AbsoluteContentSize.Y + 20)
         end
 
         return Tab
     end
 
-    -- FIXED SelectTab function
+    -- SelectTab function
     function Window:SelectTab(tab)
         -- Hide all tabs
         for _, otherTab in ipairs(self.Tabs) do
             otherTab.Content.Visible = false
-            tween(otherTab.Button, {Time = 0.2}, {
-                BackgroundTransparency = 0.3,
-                TextColor3 = Color3.fromRGB(150, 150, 180)
-            }):Play()
+            tween(otherTab.Button, {Time = 0.2}, {BackgroundTransparency = 0.4}):Play()
+            tween(otherTab.Text, {Time = 0.2}, {TextColor3 = Color3.fromRGB(150, 150, 180)}):Play()
+            tween(otherTab.Icon, {Time = 0.2}, {TextColor3 = Color3.fromRGB(150, 150, 180)}):Play()
             
             -- Remove stroke if exists
             if otherTab.Button:FindFirstChild("UIStroke") then
@@ -553,15 +678,17 @@ function GuiFramework:CreateWindow(config)
         self.CurrentTab = tab
 
         -- Style selected tab
-        tween(tab.Button, {Time = 0.2}, {
-            BackgroundTransparency = 0.1,
-            TextColor3 = currentTheme.Text
-        }):Play()
+        tween(tab.Button, {Time = 0.2}, {BackgroundTransparency = 0.1}):Play()
+        tween(tab.Text, {Time = 0.2}, {TextColor3 = currentTheme.Text}):Play()
+        tween(tab.Icon, {Time = 0.2}, {TextColor3 = tab.Config.Color}):Play()
 
         -- Add active stroke
-        createStroke(tab.Button, tab.Config.Color, 2, 0.4)
+        createStroke(tab.Button, tab.Config.Color, 2, 0.3)
 
         tab:UpdateCanvasSize()
+        
+        -- Update tab container canvas size
+        self.TabContainer.CanvasSize = UDim2.new(0, 0, 0, self.TabLayout.AbsoluteContentSize.Y + 10)
     end
 
     return Window
@@ -790,44 +917,50 @@ Players.PlayerRemoving:Connect(function(targetPlayer)
     removeESPForPlayer(targetPlayer)
 end)
 
--- Create Horizontal GUI
+-- Create Beautiful Sidebar GUI
 local Window = Framework:CreateWindow({
-    Name = "🎯 ESP System v2.0 - Horizontal",
+    Name = "🎯 ESP System v3.0 - Beautiful",
     Theme = "Ocean",
-    Size = {700, 400}, -- Wider horizontal layout
+    Size = {700, 500}, -- Sidebar layout
     KeySystem = false
 })
 
 -- Show welcome notification
 Framework:CreateNotification({
     Title = "ESP System",
-    Content = "Horizontal ESP system loaded successfully!",
+    Content = "Beautiful sidebar ESP system loaded!",
     Duration = 3
 })
 
--- Create Tabs (HORIZONTAL)
+-- Create Sidebar Tabs
 local MainTab = Window:CreateTab({
-    Name = "Main ESP",
+    Name = "ESP Controls",
     Icon = "👁",
     Color = Color3.fromRGB(100, 200, 255)
 })
 
-local SettingsTab = Window:CreateTab({
-    Name = "Settings",
-    Icon = "⚙",
+local VisualsTab = Window:CreateTab({
+    Name = "Visual Settings",
+    Icon = "🎨",
     Color = Color3.fromRGB(255, 150, 100)
 })
 
+local UtilityTab = Window:CreateTab({
+    Name = "Utility",
+    Icon = "⚙",
+    Color = Color3.fromRGB(150, 255, 100)
+})
+
 local InfoTab = Window:CreateTab({
-    Name = "Info",
+    Name = "Information",
     Icon = "ℹ",
     Color = Color3.fromRGB(150, 100, 255)
 })
 
--- Main Tab Controls
+-- Main ESP Controls Tab
 MainTab:CreateToggle({
     Name = "Enable ESP",
-    Description = "Toggle ESP visibility for all players",
+    Description = "Master toggle for all ESP features",
     Default = false,
     Callback = function(value)
         espEnabled = value
@@ -842,8 +975,8 @@ MainTab:CreateToggle({
 })
 
 MainTab:CreateToggle({
-    Name = "Show Names",
-    Description = "Display player names above their heads",
+    Name = "Show Player Names",
+    Description = "Display player usernames above their heads",
     Default = espSettings.showNames,
     Callback = function(value)
         espSettings.showNames = value
@@ -852,44 +985,45 @@ MainTab:CreateToggle({
 
 MainTab:CreateToggle({
     Name = "Show Distance",
-    Description = "Display distance to players",
+    Description = "Display distance to players in studs",
     Default = espSettings.showDistance,
     Callback = function(value)
         espSettings.showDistance = value
     end
 })
 
-MainTab:CreateToggle({
+-- Visual Settings Tab
+VisualsTab:CreateToggle({
     Name = "Show Health",
-    Description = "Display player health percentage",
+    Description = "Display player health percentage with color coding",
     Default = espSettings.showHealth,
     Callback = function(value)
         espSettings.showHealth = value
     end
 })
 
-MainTab:CreateToggle({
+VisualsTab:CreateToggle({
     Name = "Show Boxes",
-    Description = "Draw boxes around players",
+    Description = "Draw bounding boxes around players",
     Default = espSettings.showBoxes,
     Callback = function(value)
         espSettings.showBoxes = value
     end
 })
 
-MainTab:CreateToggle({
+VisualsTab:CreateToggle({
     Name = "Show Tracers",
-    Description = "Draw lines pointing to players",
+    Description = "Draw lines from screen center to players",
     Default = espSettings.showTracers,
     Callback = function(value)
         espSettings.showTracers = value
     end
 })
 
--- Settings Tab
-SettingsTab:CreateButton({
+-- Utility Tab
+UtilityTab:CreateButton({
     Name = "Refresh ESP",
-    Description = "Reload ESP for all players",
+    Description = "Reload ESP for all players in the server",
     Callback = function()
         -- Remove all existing ESP
         for targetPlayer, _ in pairs(espObjects) do
@@ -905,15 +1039,15 @@ SettingsTab:CreateButton({
         
         Framework:CreateNotification({
             Title = "ESP Refreshed",
-            Content = "All ESP objects reloaded!",
+            Content = "All ESP objects have been reloaded!",
             Duration = 2
         })
     end
 })
 
-SettingsTab:CreateButton({
-    Name = "Reset Settings",
-    Description = "Reset all ESP settings to default",
+UtilityTab:CreateButton({
+    Name = "Reset All Settings",
+    Description = "Reset all ESP settings to their default values",
     Callback = function()
         espSettings = {
             showNames = true,
@@ -926,26 +1060,25 @@ SettingsTab:CreateButton({
         
         Framework:CreateNotification({
             Title = "Settings Reset",
-            Content = "All settings reset to default!",
+            Content = "All settings have been reset to default!",
             Duration = 2
         })
     end
 })
 
-SettingsTab:CreateToggle({
+UtilityTab:CreateToggle({
     Name = "Enable Notifications",
-    Description = "Show ESP status notifications",
+    Description = "Show system notifications for ESP events",
     Default = true,
     Callback = function(value)
-        -- You can use this to control notification display
         print("Notifications:", value and "Enabled" or "Disabled")
     end
 })
 
--- Info Tab
+-- Information Tab
 InfoTab:CreateButton({
-    Name = "Player Count",
-    Description = "Show current player count and ESP status",
+    Name = "Player Statistics",
+    Description = "View current player count and ESP status",
     Callback = function()
         local playerCount = #Players:GetPlayers() - 1 -- Exclude local player
         local espCount = 0
@@ -954,16 +1087,16 @@ InfoTab:CreateButton({
         end
         
         Framework:CreateNotification({
-            Title = "Player Stats",
-            Content = string.format("Players: %d | ESP Active: %d", playerCount, espCount),
-            Duration = 3
+            Title = "Player Statistics",
+            Content = string.format("Total Players: %d | ESP Active: %d", playerCount, espCount),
+            Duration = 4
         })
     end
 })
 
 InfoTab:CreateButton({
-    Name = "Performance Info",
-    Description = "Show ESP performance statistics",
+    Name = "Performance Metrics",
+    Description = "View ESP system performance information",
     Callback = function()
         local drawingCount = 0
         for _, esp in pairs(espObjects) do
@@ -971,33 +1104,21 @@ InfoTab:CreateButton({
         end
         
         Framework:CreateNotification({
-            Title = "Performance",
-            Content = string.format("Active Drawings: %d | FPS Impact: Low", drawingCount),
-            Duration = 3
-        })
-    end
-})
-
-InfoTab:CreateButton({
-    Name = "ESP Features",
-    Description = "List all available ESP features",
-    Callback = function()
-        Framework:CreateNotification({
-            Title = "ESP Features",
-            Content = "Names, Distance, Health, Boxes, Tracers - All Working!",
+            Title = "Performance Metrics",
+            Content = string.format("Active Drawings: %d | Status: Optimized", drawingCount),
             Duration = 4
         })
     end
 })
 
 InfoTab:CreateButton({
-    Name = "About",
-    Description = "About this ESP system",
+    Name = "About ESP System",
+    Description = "Information about this ESP system",
     Callback = function()
         Framework:CreateNotification({
-            Title = "ESP System v2.0",
-            Content = "Horizontal layout with working tabs! Made for better UX.",
-            Duration = 4
+            Title = "ESP System v3.0",
+            Content = "Beautiful sidebar layout with enhanced UI and smooth animations!",
+            Duration = 5
         })
     end
 })
@@ -1023,6 +1144,7 @@ for _, targetPlayer in pairs(Players:GetPlayers()) do
     end
 end
 
-print("🎯 Horizontal ESP System loaded successfully!")
-print("📋 Features: Horizontal tabs, Toggle ESP, Names, Distance, Health, Boxes, Tracers")
-print("🔧 Use the horizontal tabs to navigate between different sections")
+print("🎯 Beautiful Sidebar ESP System loaded successfully!")
+print("📋 Layout: Left sidebar with tabs, right content area")
+print("✨ Features: Beautiful buttons, smooth animations, enhanced UI")
+print("🔧 Use the sidebar tabs to navigate between different sections")
