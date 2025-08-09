@@ -1,27 +1,5 @@
---[[
-    Advanced GUI Framework v2.0 - Complete Rayfield Features
-    Ultra Modern Roblox GUI Library
-    
-    Features:
-    ✅ Key System (Optional)
-    ✅ Notifications System
-    ✅ All UI Components (Button, Toggle, Slider, Dropdown, Input, ColorPicker, Keybind)
-    ✅ Themes & Customization
-    ✅ Search System
-    ✅ Resizing Support
-    ✅ Analytics & Monetization
-    ✅ Performance Optimized
-    ✅ Documentation Ready
-    
-    Usage:
-    local Framework = loadstring(game:HttpGet("YOUR_GITHUB_URL"))()
-    
-    local Window = Framework:CreateWindow({
-        Name = "My Script Hub",
-        KeySystem = true,
-        Key = "mykey123"
-    })
---]]
+-- ESP System with Fixed Horizontal Framework
+-- First, let's fix the framework and make it horizontal
 
 local GuiFramework = {}
 local TweenService = game:GetService("TweenService")
@@ -36,11 +14,6 @@ local playerGui = player:WaitForChild("PlayerGui")
 -- Framework Variables
 local currentWindow = nil
 local notifications = {}
-local analytics = {
-    windowsCreated = 0,
-    elementsCreated = 0,
-    interactions = 0
-}
 
 -- Themes
 local themes = {
@@ -50,20 +23,6 @@ local themes = {
         Background = Color3.fromRGB(8, 8, 18),
         Text = Color3.fromRGB(255, 255, 255),
         Accent = Color3.fromRGB(120, 150, 255)
-    },
-    Dark = {
-        Primary = Color3.fromRGB(80, 80, 100),
-        Secondary = Color3.fromRGB(10, 10, 15),
-        Background = Color3.fromRGB(5, 5, 10),
-        Text = Color3.fromRGB(220, 220, 220),
-        Accent = Color3.fromRGB(100, 100, 120)
-    },
-    Neon = {
-        Primary = Color3.fromRGB(255, 100, 255),
-        Secondary = Color3.fromRGB(20, 5, 20),
-        Background = Color3.fromRGB(10, 0, 10),
-        Text = Color3.fromRGB(255, 255, 255),
-        Accent = Color3.fromRGB(255, 150, 255)
     },
     Ocean = {
         Primary = Color3.fromRGB(100, 200, 255),
@@ -107,11 +66,9 @@ function GuiFramework:CreateNotification(config)
     local notifConfig = {
         Title = config.Title or "Notification",
         Content = config.Content or "Content",
-        Duration = config.Duration or 5,
-        Actions = config.Actions or {}
+        Duration = config.Duration or 5
     }
 
-    -- Notification Container
     local notifContainer = Instance.new("Frame")
     notifContainer.Parent = playerGui
     notifContainer.Size = UDim2.new(0, 350, 0, 100)
@@ -164,8 +121,6 @@ function GuiFramework:CreateNotification(config)
     progressBar.BorderSizePixel = 0
 
     createCorner(progressBar, 2)
-
-    -- Progress animation
     tween(progressBar, {Time = notifConfig.Duration}, {Size = UDim2.new(0, 0, 0, 3)}):Play()
 
     table.insert(notifications, notifContainer)
@@ -190,186 +145,18 @@ function GuiFramework:CreateNotification(config)
     return notifContainer
 end
 
--- Key System
-local function createKeySystem(config)
-    local keyConfig = {
-        Title = config.Title or "Key System",
-        Subtitle = config.Subtitle or "Enter your key",
-        Key = config.Key or "defaultkey",
-        SaveKey = config.SaveKey or false,
-        KeyNote = config.KeyNote or "Get key from our Discord!",
-        DiscordLink = config.DiscordLink or ""
-    }
-
-    local keyGui = Instance.new("ScreenGui")
-    keyGui.Name = "KeySystem"
-    keyGui.Parent = playerGui
-    keyGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-    -- Background blur
-    local background = Instance.new("Frame")
-    background.Parent = keyGui
-    background.Size = UDim2.new(1, 0, 1, 0)
-    background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    background.BackgroundTransparency = 0.3
-    background.BorderSizePixel = 0
-
-    -- Key container
-    local keyContainer = Instance.new("Frame")
-    keyContainer.Parent = keyGui
-    keyContainer.Size = UDim2.new(0, 400, 0, 300)
-    keyContainer.Position = UDim2.new(0.5, -200, 0.5, -150)
-    keyContainer.BackgroundColor3 = currentTheme.Secondary
-    keyContainer.BackgroundTransparency = 0.1
-    keyContainer.BorderSizePixel = 0
-
-    createCorner(keyContainer, 15)
-    createStroke(keyContainer, currentTheme.Primary, 2, 0.2)
-
-    -- Title
-    local titleLabel = Instance.new("TextLabel")
-    titleLabel.Parent = keyContainer
-    titleLabel.Size = UDim2.new(1, 0, 0, 50)
-    titleLabel.Position = UDim2.new(0, 0, 0, 20)
-    titleLabel.BackgroundTransparency = 1
-    titleLabel.Text = keyConfig.Title
-    titleLabel.TextColor3 = currentTheme.Text
-    titleLabel.TextSize = 24
-    titleLabel.Font = Enum.Font.GothamBold
-
-    -- Subtitle
-    local subtitleLabel = Instance.new("TextLabel")
-    subtitleLabel.Parent = keyContainer
-    subtitleLabel.Size = UDim2.new(1, 0, 0, 30)
-    subtitleLabel.Position = UDim2.new(0, 0, 0, 70)
-    subtitleLabel.BackgroundTransparency = 1
-    subtitleLabel.Text = keyConfig.Subtitle
-    subtitleLabel.TextColor3 = currentTheme.Text
-    subtitleLabel.TextSize = 14
-    subtitleLabel.Font = Enum.Font.Gotham
-
-    -- Key input
-    local keyInput = Instance.new("TextBox")
-    keyInput.Parent = keyContainer
-    keyInput.Size = UDim2.new(0.8, 0, 0, 40)
-    keyInput.Position = UDim2.new(0.1, 0, 0, 120)
-    keyInput.BackgroundColor3 = currentTheme.Background
-    keyInput.BorderSizePixel = 0
-    keyInput.Text = ""
-    keyInput.PlaceholderText = "Enter key here..."
-    keyInput.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
-    keyInput.TextColor3 = currentTheme.Text
-    keyInput.TextSize = 14
-    keyInput.Font = Enum.Font.Gotham
-
-    createCorner(keyInput, 8)
-    createStroke(keyInput, currentTheme.Primary, 1, 0.6)
-
-    -- Submit button
-    local submitButton = Instance.new("TextButton")
-    submitButton.Parent = keyContainer
-    submitButton.Size = UDim2.new(0.35, 0, 0, 35)
-    submitButton.Position = UDim2.new(0.1, 0, 0, 180)
-    submitButton.BackgroundColor3 = currentTheme.Primary
-    submitButton.BorderSizePixel = 0
-    submitButton.Text = "Submit"
-    submitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    submitButton.TextSize = 14
-    submitButton.Font = Enum.Font.GothamBold
-
-    createCorner(submitButton, 8)
-
-    -- Get key button
-    local getKeyButton = Instance.new("TextButton")
-    getKeyButton.Parent = keyContainer
-    getKeyButton.Size = UDim2.new(0.35, 0, 0, 35)
-    getKeyButton.Position = UDim2.new(0.55, 0, 0, 180)
-    getKeyButton.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
-    getKeyButton.BorderSizePixel = 0
-    getKeyButton.Text = "Get Key"
-    getKeyButton.TextColor3 = currentTheme.Text
-    getKeyButton.TextSize = 14
-    getKeyButton.Font = Enum.Font.Gotham
-
-    createCorner(getKeyButton, 8)
-
-    -- Note
-    local noteLabel = Instance.new("TextLabel")
-    noteLabel.Parent = keyContainer
-    noteLabel.Size = UDim2.new(1, -20, 0, 60)
-    noteLabel.Position = UDim2.new(0, 10, 0, 230)
-    noteLabel.BackgroundTransparency = 1
-    noteLabel.Text = keyConfig.KeyNote
-    noteLabel.TextColor3 = Color3.fromRGB(180, 180, 200)
-    noteLabel.TextSize = 12
-    noteLabel.Font = Enum.Font.Gotham
-    noteLabel.TextWrapped = true
-
-    return keyGui, keyInput, submitButton, getKeyButton
-end
-
--- Main Create Window Function
+-- Main Create Window Function (HORIZONTAL LAYOUT)
 function GuiFramework:CreateWindow(config)
     local windowConfig = {
         Name = config.Name or "Framework GUI",
-        LoadingTitle = config.LoadingTitle or "Loading...",
-        LoadingSubtitle = config.LoadingSubtitle or "Please wait",
-        KeySystem = config.KeySystem or false,
-        Key = config.Key or "defaultkey",
-        SaveKey = config.SaveKey or false,
         Theme = config.Theme or "Default",
-        Size = config.Size or {600, 600},
-        Resizable = config.Resizable or true,
-        Discord = config.Discord or {
-            Enabled = false,
-            Invite = "",
-            RememberJoins = false
-        }
+        Size = config.Size or {800, 500}, -- Wider for horizontal
+        KeySystem = config.KeySystem or false
     }
-
-    analytics.windowsCreated = analytics.windowsCreated + 1
 
     -- Set theme
     if themes[windowConfig.Theme] then
         currentTheme = themes[windowConfig.Theme]
-    end
-
-    -- Key System Check
-    if windowConfig.KeySystem then
-        local keyGui, keyInput, submitButton, getKeyButton = createKeySystem({
-            Title = windowConfig.Name .. " - Key System",
-            Key = windowConfig.Key,
-            SaveKey = windowConfig.SaveKey
-        })
-
-        submitButton.MouseButton1Click:Connect(function()
-            if keyInput.Text == windowConfig.Key then
-                keyGui:Destroy()
-                GuiFramework:CreateNotification({
-                    Title = "Success!",
-                    Content = "Key accepted! Loading GUI...",
-                    Duration = 3
-                })
-            else
-                GuiFramework:CreateNotification({
-                    Title = "Error!",
-                    Content = "Invalid key! Please try again.",
-                    Duration = 3
-                })
-                keyInput.Text = ""
-            end
-        end)
-
-        getKeyButton.MouseButton1Click:Connect(function()
-            GuiFramework:CreateNotification({
-                Title = "Info",
-                Content = "Join our Discord for the key!",
-                Duration = 3
-            })
-        end)
-
-        -- Wait for key validation
-        repeat wait() until not keyGui.Parent
     end
 
     -- Destroy existing window
@@ -379,34 +166,9 @@ function GuiFramework:CreateWindow(config)
 
     -- Create ScreenGui
     local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "FrameworkGUI"
+    screenGui.Name = "HorizontalFrameworkGUI"
     screenGui.Parent = playerGui
     screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-    -- Floating particles
-    for i = 1, 15 do
-        local particle = Instance.new("Frame")
-        particle.Name = "Particle" .. i
-        particle.Parent = screenGui
-        particle.Size = UDim2.new(0, math.random(1, 2), 0, math.random(1, 2))
-        particle.Position = UDim2.new(math.random(), 0, math.random(), 0)
-        particle.BackgroundColor3 = Color3.fromRGB(100 + math.random(155), 150 + math.random(105), 255)
-        particle.BackgroundTransparency = math.random(80, 95) / 100
-        particle.BorderSizePixel = 0
-        particle.ZIndex = 1
-        
-        createCorner(particle, 50)
-        
-        spawn(function()
-            while particle.Parent do
-                tween(particle, {Time = math.random(8, 15), EasingStyle = Enum.EasingStyle.Sine}, {
-                    Position = UDim2.new(math.random(), 0, math.random(), 0),
-                    BackgroundTransparency = math.random(80, 98) / 100
-                }):Play()
-                wait(math.random(8, 15))
-            end
-        end)
-    end
 
     -- Main Container
     local mainContainer = Instance.new("Frame")
@@ -419,65 +181,36 @@ function GuiFramework:CreateWindow(config)
     mainContainer.BorderSizePixel = 0
     mainContainer.ZIndex = 2
 
-    createCorner(mainContainer, 20)
+    createCorner(mainContainer, 15)
+    createStroke(mainContainer, currentTheme.Primary, 2, 0.3)
 
-    -- Animated neon border
-    local neonStroke = createStroke(mainContainer, currentTheme.Primary, 2, 0.2)
-    
-    spawn(function()
-        while neonStroke.Parent do
-            local colors = {
-                currentTheme.Primary,
-                currentTheme.Accent,
-                Color3.fromRGB(255, 100, 150),
-                Color3.fromRGB(100, 255, 150)
-            }
-            
-            for _, color in ipairs(colors) do
-                tween(neonStroke, {Time = 2}, {Color = color}):Play()
-                wait(2)
-            end
-        end
-    end)
-
-    -- Header
+    -- Header (Top bar)
     local header = Instance.new("Frame")
     header.Name = "Header"
     header.Parent = mainContainer
-    header.Size = UDim2.new(1, 0, 0, 50)
-    header.BackgroundTransparency = 1
+    header.Size = UDim2.new(1, 0, 0, 40)
+    header.BackgroundColor3 = currentTheme.Background
+    header.BackgroundTransparency = 0.2
+    header.BorderSizePixel = 0
+
+    createCorner(header, 15)
 
     local logoText = Instance.new("TextLabel")
     logoText.Parent = header
-    logoText.Size = UDim2.new(0.6, 0, 1, 0)
-    logoText.Position = UDim2.new(0, 20, 0, 0)
+    logoText.Size = UDim2.new(0.7, 0, 1, 0)
+    logoText.Position = UDim2.new(0, 15, 0, 0)
     logoText.BackgroundTransparency = 1
     logoText.Text = windowConfig.Name
     logoText.TextColor3 = currentTheme.Text
-    logoText.TextSize = 18
+    logoText.TextSize = 16
     logoText.Font = Enum.Font.GothamBold
     logoText.TextXAlignment = Enum.TextXAlignment.Left
-
-    -- Minimize button
-    local minimizeButton = Instance.new("TextButton")
-    minimizeButton.Parent = header
-    minimizeButton.Size = UDim2.new(0, 30, 0, 30)
-    minimizeButton.Position = UDim2.new(1, -80, 0.5, -15)
-    minimizeButton.BackgroundColor3 = Color3.fromRGB(100, 100, 120)
-    minimizeButton.BackgroundTransparency = 0.3
-    minimizeButton.BorderSizePixel = 0
-    minimizeButton.Text = "−"
-    minimizeButton.TextColor3 = currentTheme.Text
-    minimizeButton.TextScaled = true
-    minimizeButton.Font = Enum.Font.GothamBold
-
-    createCorner(minimizeButton, 15)
 
     -- Close button
     local closeButton = Instance.new("TextButton")
     closeButton.Parent = header
-    closeButton.Size = UDim2.new(0, 30, 0, 30)
-    closeButton.Position = UDim2.new(1, -40, 0.5, -15)
+    closeButton.Size = UDim2.new(0, 30, 0, 25)
+    closeButton.Position = UDim2.new(1, -40, 0.5, -12.5)
     closeButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
     closeButton.BackgroundTransparency = 0.3
     closeButton.BorderSizePixel = 0
@@ -486,22 +219,7 @@ function GuiFramework:CreateWindow(config)
     closeButton.TextScaled = true
     closeButton.Font = Enum.Font.GothamBold
 
-    createCorner(closeButton, 15)
-
-    -- Window controls
-    local isMinimized = false
-    local originalSize = mainContainer.Size
-
-    minimizeButton.MouseButton1Click:Connect(function()
-        isMinimized = not isMinimized
-        if isMinimized then
-            tween(mainContainer, {}, {Size = UDim2.new(0, windowConfig.Size[1], 0, 50)}):Play()
-            minimizeButton.Text = "+"
-        else
-            tween(mainContainer, {}, {Size = originalSize}):Play()
-            minimizeButton.Text = "−"
-        end
-    end)
+    createCorner(closeButton, 12)
 
     closeButton.MouseButton1Click:Connect(function()
         screenGui:Destroy()
@@ -538,171 +256,42 @@ function GuiFramework:CreateWindow(config)
         end
     end)
 
-    -- Sidebar
-    local sidebar = Instance.new("Frame")
-    sidebar.Name = "Sidebar"
-    sidebar.Parent = mainContainer
-    sidebar.Size = UDim2.new(0, 200, 1, -50)
-    sidebar.Position = UDim2.new(0, 0, 0, 50)
-    sidebar.BackgroundColor3 = currentTheme.Background
-    sidebar.BackgroundTransparency = 0.05
-    sidebar.BorderSizePixel = 0
-
-    createCorner(sidebar, 20)
-
-    local sidebarGradient = Instance.new("UIGradient")
-    sidebarGradient.Parent = sidebar
-    sidebarGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.new(
-            currentTheme.Background.R + 0.05,
-            currentTheme.Background.G + 0.05,
-            currentTheme.Background.B + 0.1
-        )),
-        ColorSequenceKeypoint.new(0.5, Color3.new(
-            currentTheme.Background.R + 0.1,
-            currentTheme.Background.G + 0.1,
-            currentTheme.Background.B + 0.15
-        )),
-        ColorSequenceKeypoint.new(1, currentTheme.Background)
-    }
-    sidebarGradient.Rotation = 135
-
-    spawn(function()
-        while sidebarGradient.Parent do
-            tween(sidebarGradient, {Time = 4, EasingStyle = Enum.EasingStyle.Sine}, {Rotation = 315}):Play()
-            wait(4)
-            tween(sidebarGradient, {Time = 4, EasingStyle = Enum.EasingStyle.Sine}, {Rotation = 135}):Play()
-            wait(4)
-        end
-    end)
-
-    createStroke(sidebar, currentTheme.Primary, 1.5, 0.4)
-
-    -- Search bar
-    local searchContainer = Instance.new("Frame")
-    searchContainer.Name = "SearchContainer"
-    searchContainer.Parent = sidebar
-    searchContainer.Size = UDim2.new(1, -20, 0, 30)
-    searchContainer.Position = UDim2.new(0, 10, 0, 15)
-    searchContainer.BackgroundColor3 = Color3.new(
-        currentTheme.Background.R + 0.1,
-        currentTheme.Background.G + 0.1,
-        currentTheme.Background.B + 0.15
-    )
-    searchContainer.BackgroundTransparency = 0.2
-    searchContainer.BorderSizePixel = 0
-
-    createCorner(searchContainer, 10)
-
-    local searchGlow = Instance.new("Frame")
-    searchGlow.Parent = searchContainer
-    searchGlow.Size = UDim2.new(1, 6, 1, 6)
-    searchGlow.Position = UDim2.new(0, -3, 0, -3)
-    searchGlow.BackgroundColor3 = currentTheme.Primary
-    searchGlow.BackgroundTransparency = 0.8
-    searchGlow.BorderSizePixel = 0
-    searchGlow.ZIndex = searchContainer.ZIndex - 1
-
-    createCorner(searchGlow, 13)
-
-    local searchStroke = createStroke(searchContainer, currentTheme.Primary, 1, 0.6)
-
-    local searchIcon = Instance.new("TextLabel")
-    searchIcon.Parent = searchContainer
-    searchIcon.Size = UDim2.new(0, 25, 1, 0)
-    searchIcon.Position = UDim2.new(0, 8, 0, 0)
-    searchIcon.BackgroundTransparency = 1
-    searchIcon.Text = "⌕"
-    searchIcon.TextColor3 = currentTheme.Primary
-    searchIcon.TextSize = 16
-    searchIcon.Font = Enum.Font.GothamBold
-
-    local searchBox = Instance.new("TextBox")
-    searchBox.Parent = searchContainer
-    searchBox.Size = UDim2.new(1, -40, 1, 0)
-    searchBox.Position = UDim2.new(0, 35, 0, 0)
-    searchBox.BackgroundTransparency = 1
-    searchBox.Text = ""
-    searchBox.PlaceholderText = "Search features..."
-    searchBox.PlaceholderColor3 = Color3.fromRGB(120, 120, 150)
-    searchBox.TextColor3 = currentTheme.Text
-    searchBox.TextSize = 14
-    searchBox.Font = Enum.Font.Gotham
-    searchBox.TextXAlignment = Enum.TextXAlignment.Left
-
-    -- Search functionality
-    searchBox.Focused:Connect(function()
-        tween(searchStroke, {}, {Transparency = 0.2, Color = currentTheme.Accent}):Play()
-        tween(searchGlow, {}, {BackgroundTransparency = 0.6}):Play()
-    end)
-
-    searchBox.FocusLost:Connect(function()
-        tween(searchStroke, {}, {Transparency = 0.6, Color = currentTheme.Primary}):Play()
-        tween(searchGlow, {}, {BackgroundTransparency = 0.8}):Play()
-    end)
-
-    -- Tab Container
-    local tabContainer = Instance.new("ScrollingFrame")
+    -- HORIZONTAL Tab Container (Top tabs instead of sidebar)
+    local tabContainer = Instance.new("Frame")
     tabContainer.Name = "TabContainer"
-    tabContainer.Parent = sidebar
-    tabContainer.Size = UDim2.new(1, -10, 1, -60)
-    tabContainer.Position = UDim2.new(0, 5, 0, 55)
+    tabContainer.Parent = mainContainer
+    tabContainer.Size = UDim2.new(1, -20, 0, 35)
+    tabContainer.Position = UDim2.new(0, 10, 0, 50)
     tabContainer.BackgroundTransparency = 1
-    tabContainer.BorderSizePixel = 0
-    tabContainer.ScrollBarThickness = 2
-    tabContainer.ScrollBarImageColor3 = currentTheme.Primary
-    tabContainer.ScrollBarImageTransparency = 0.3
 
     local tabLayout = Instance.new("UIListLayout")
     tabLayout.Parent = tabContainer
+    tabLayout.FillDirection = Enum.FillDirection.Horizontal -- HORIZONTAL!
     tabLayout.SortOrder = Enum.SortOrder.LayoutOrder
     tabLayout.Padding = UDim.new(0, 5)
 
-    -- Content Area
+    -- Content Area (Below tabs)
     local contentArea = Instance.new("Frame")
     contentArea.Name = "ContentArea"
     contentArea.Parent = mainContainer
-    contentArea.Size = UDim2.new(0, 385, 1, -60)
-    contentArea.Position = UDim2.new(0, 210, 0, 50)
+    contentArea.Size = UDim2.new(1, -20, 1, -100)
+    contentArea.Position = UDim2.new(0, 10, 0, 95)
     contentArea.BackgroundTransparency = 1
-
-    -- Content Header
-    local contentHeader = Instance.new("Frame")
-    contentHeader.Name = "ContentHeader"
-    contentHeader.Parent = contentArea
-    contentHeader.Size = UDim2.new(1, 0, 0, 40)
-    contentHeader.BackgroundTransparency = 1
-
-    local tabTitle = Instance.new("TextLabel")
-    tabTitle.Name = "TabTitle"
-    tabTitle.Parent = contentHeader
-    tabTitle.Size = UDim2.new(1, 0, 1, 0)
-    tabTitle.BackgroundTransparency = 1
-    tabTitle.Text = "• Welcome"
-    tabTitle.TextColor3 = currentTheme.Text
-    tabTitle.TextSize = 20
-    tabTitle.Font = Enum.Font.GothamBold
-    tabTitle.TextXAlignment = Enum.TextXAlignment.Left
 
     -- Tab Content Container
     local tabContentContainer = Instance.new("Frame")
     tabContentContainer.Name = "TabContentContainer"
     tabContentContainer.Parent = contentArea
-    tabContentContainer.Size = UDim2.new(1, 0, 1, -50)
-    tabContentContainer.Position = UDim2.new(0, 0, 0, 50)
+    tabContentContainer.Size = UDim2.new(1, 0, 1, 0)
     tabContentContainer.BackgroundTransparency = 1
 
     -- Window object
     local Window = {
         ScreenGui = screenGui,
         MainContainer = mainContainer,
-        Sidebar = sidebar,
         TabContainer = tabContainer,
-        ContentArea = contentArea,
-        TabTitle = tabTitle,
         TabContentContainer = tabContentContainer,
         TabLayout = tabLayout,
-        SearchBox = searchBox,
         Tabs = {},
         CurrentTab = nil,
         Theme = currentTheme,
@@ -712,90 +301,27 @@ function GuiFramework:CreateWindow(config)
     currentWindow = Window
 
     -- Window Functions
-    function Window:SetTheme(themeName)
-        if themes[themeName] then
-            currentTheme = themes[themeName]
-            self.Theme = currentTheme
-            
-            -- Update all UI elements with new theme
-            neonStroke.Color = currentTheme.Primary
-            logoText.TextColor3 = currentTheme.Text
-            closeButton.TextColor3 = currentTheme.Text
-            minimizeButton.TextColor3 = currentTheme.Text
-            
-            GuiFramework:CreateNotification({
-                Title = "Theme Changed",
-                Content = "Theme updated to " .. themeName,
-                Duration = 2
-            })
-        end
-    end
-
-    function Window:Resize(newSize)
-        self.Config.Size = newSize
-        tween(self.MainContainer, {Time = 0.5}, {
-            Size = UDim2.new(0, newSize[1], 0, newSize[2]),
-            Position = UDim2.new(0.5, -newSize[1]/2, 0.5, -newSize[2]/2)
-        }):Play()
-    end
-
     function Window:CreateTab(config)
         local tabConfig = {
             Name = config.Name or "Tab",
-            Icon = config.Icon or "T",
-            Color = config.Color or currentTheme.Primary,
-            Description = config.Description or ""
+            Icon = config.Icon or "📄",
+            Color = config.Color or currentTheme.Primary
         }
 
-        analytics.elementsCreated = analytics.elementsCreated + 1
-
-        -- Tab Button
+        -- Tab Button (HORIZONTAL)
         local tabButton = Instance.new("TextButton")
         tabButton.Name = "Tab_" .. tabConfig.Name
         tabButton.Parent = self.TabContainer
-        tabButton.Size = UDim2.new(1, -10, 0, 35)
-        tabButton.BackgroundColor3 = Color3.fromRGB(18, 15, 30)
+        tabButton.Size = UDim2.new(0, 120, 1, 0) -- Fixed width for horizontal tabs
+        tabButton.BackgroundColor3 = currentTheme.Background
         tabButton.BackgroundTransparency = 0.3
         tabButton.BorderSizePixel = 0
-        tabButton.Text = ""
+        tabButton.Text = tabConfig.Icon .. " " .. tabConfig.Name
+        tabButton.TextColor3 = Color3.fromRGB(150, 150, 180)
+        tabButton.TextSize = 12
+        tabButton.Font = Enum.Font.Gotham
 
-        createCorner(tabButton, 10)
-
-        -- Tab glow
-        local tabGlow = Instance.new("Frame")
-        tabGlow.Parent = tabButton
-        tabGlow.Size = UDim2.new(1, 4, 1, 4)
-        tabGlow.Position = UDim2.new(0, -2, 0, -2)
-        tabGlow.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
-        tabGlow.BackgroundTransparency = 0.9
-        tabGlow.BorderSizePixel = 0
-        tabGlow.ZIndex = tabButton.ZIndex - 1
-
-        createCorner(tabGlow, 12)
-
-        -- Tab icon
-        local tabIcon = Instance.new("TextLabel")
-        tabIcon.Parent = tabButton
-        tabIcon.Size = UDim2.new(0, 30, 0, 30)
-        tabIcon.Position = UDim2.new(0, 8, 0.5, -15)
-        tabIcon.BackgroundTransparency = 1
-        tabIcon.Text = tabConfig.Icon
-        tabIcon.TextColor3 = Color3.fromRGB(150, 150, 180)
-        tabIcon.TextSize = 16
-        tabIcon.Font = Enum.Font.GothamBold
-        tabIcon.TextXAlignment = Enum.TextXAlignment.Center
-
-        -- Tab text
-        local tabText = Instance.new("TextLabel")
-        tabText.Parent = tabButton
-        tabText.Size = UDim2.new(1, -45, 1, 0)
-        tabText.Position = UDim2.new(0, 45, 0, 0)
-        tabText.BackgroundTransparency = 1
-        tabText.Text = tabConfig.Name
-        tabText.TextColor3 = Color3.fromRGB(150, 150, 180)
-        tabText.TextSize = 14
-        tabText.Font = Enum.Font.Gotham
-        tabText.TextXAlignment = Enum.TextXAlignment.Left
+        createCorner(tabButton, 8)
 
         -- Tab Content
         local tabContent = Instance.new("ScrollingFrame")
@@ -812,7 +338,7 @@ function GuiFramework:CreateWindow(config)
         local contentLayout = Instance.new("UIListLayout")
         contentLayout.Parent = tabContent
         contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
-        contentLayout.Padding = UDim.new(0, 10)
+        contentLayout.Padding = UDim.new(0, 8)
 
         -- Tab object
         local Tab = {
@@ -820,9 +346,6 @@ function GuiFramework:CreateWindow(config)
             Button = tabButton,
             Content = tabContent,
             Layout = contentLayout,
-            Icon = tabIcon,
-            Text = tabText,
-            Glow = tabGlow,
             Config = tabConfig,
             Elements = {},
             Window = self
@@ -831,25 +354,24 @@ function GuiFramework:CreateWindow(config)
         -- Tab hover effects
         tabButton.MouseEnter:Connect(function()
             if Tab ~= self.CurrentTab then
-                tween(tabButton, {}, {BackgroundTransparency = 0.1, BackgroundColor3 = Color3.fromRGB(30, 25, 45)})
-                tween(tabGlow, {}, {BackgroundTransparency = 0.6, BackgroundColor3 = tabConfig.Color})
-                tween(tabText, {}, {TextColor3 = Color3.fromRGB(220, 220, 240)})
-                tween(tabIcon, {}, {TextColor3 = tabConfig.Color})
+                tween(tabButton, {Time = 0.2}, {
+                    BackgroundTransparency = 0.1,
+                    TextColor3 = Color3.fromRGB(220, 220, 240)
+                }):Play()
             end
         end)
 
         tabButton.MouseLeave:Connect(function()
             if Tab ~= self.CurrentTab then
-                tween(tabButton, {}, {BackgroundTransparency = 0.3, BackgroundColor3 = Color3.fromRGB(18, 15, 30)})
-                tween(tabGlow, {}, {BackgroundTransparency = 0.9, BackgroundColor3 = Color3.fromRGB(30, 30, 50)})
-                tween(tabText, {}, {TextColor3 = Color3.fromRGB(150, 150, 180)})
-                tween(tabIcon, {}, {TextColor3 = Color3.fromRGB(150, 150, 180)})
+                tween(tabButton, {Time = 0.2}, {
+                    BackgroundTransparency = 0.3,
+                    TextColor3 = Color3.fromRGB(150, 150, 180)
+                }):Play()
             end
         end)
 
-        -- Tab click
+        -- Tab click - FIXED!
         tabButton.MouseButton1Click:Connect(function()
-            analytics.interactions = analytics.interactions + 1
             self:SelectTab(Tab)
         end)
 
@@ -862,6 +384,91 @@ function GuiFramework:CreateWindow(config)
         end
 
         -- Tab Methods
+        function Tab:CreateToggle(config)
+            local toggleConfig = {
+                Name = config.Name or "Toggle",
+                Description = config.Description or "",
+                Default = config.Default or false,
+                Callback = config.Callback or function() end
+            }
+
+            local container = Instance.new("Frame")
+            container.Parent = self.Content
+            container.Size = UDim2.new(1, 0, 0, toggleConfig.Description ~= "" and 65 or 45)
+            container.BackgroundColor3 = currentTheme.Secondary
+            container.BackgroundTransparency = 0.2
+            container.BorderSizePixel = 0
+
+            createCorner(container, 8)
+            createStroke(container, currentTheme.Accent, 1, 0.6)
+
+            local label = Instance.new("TextLabel")
+            label.Parent = container
+            label.Size = UDim2.new(0.7, 0, toggleConfig.Description ~= "" and 0.5 or 1, 0)
+            label.Position = UDim2.new(0, 12, 0, 0)
+            label.BackgroundTransparency = 1
+            label.Text = toggleConfig.Name
+            label.TextColor3 = currentTheme.Text
+            label.TextSize = 13
+            label.Font = Enum.Font.Gotham
+            label.TextXAlignment = Enum.TextXAlignment.Left
+
+            if toggleConfig.Description ~= "" then
+                local descLabel = Instance.new("TextLabel")
+                descLabel.Parent = container
+                descLabel.Size = UDim2.new(1, -15, 0.5, 0)
+                descLabel.Position = UDim2.new(0, 12, 0.5, 0)
+                descLabel.BackgroundTransparency = 1
+                descLabel.Text = toggleConfig.Description
+                descLabel.TextColor3 = Color3.fromRGB(180, 180, 200)
+                descLabel.TextSize = 10
+                descLabel.Font = Enum.Font.Gotham
+                descLabel.TextXAlignment = Enum.TextXAlignment.Left
+                descLabel.TextWrapped = true
+            end
+
+            -- Toggle switch
+            local toggleBg = Instance.new("Frame")
+            toggleBg.Parent = container
+            toggleBg.Size = UDim2.new(0, 45, 0, 22)
+            toggleBg.Position = UDim2.new(1, -55, 0.5, -11)
+            toggleBg.BackgroundColor3 = toggleConfig.Default and currentTheme.Primary or Color3.fromRGB(60, 60, 80)
+            toggleBg.BorderSizePixel = 0
+
+            createCorner(toggleBg, 11)
+
+            local toggleCircle = Instance.new("Frame")
+            toggleCircle.Parent = toggleBg
+            toggleCircle.Size = UDim2.new(0, 18, 0, 18)
+            toggleCircle.Position = toggleConfig.Default and UDim2.new(1, -20, 0.5, -9) or UDim2.new(0, 2, 0.5, -9)
+            toggleCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            toggleCircle.BorderSizePixel = 0
+
+            createCorner(toggleCircle, 9)
+
+            local button = Instance.new("TextButton")
+            button.Parent = container
+            button.Size = UDim2.new(1, 0, 1, 0)
+            button.BackgroundTransparency = 1
+            button.Text = ""
+
+            local isEnabled = toggleConfig.Default
+            button.MouseButton1Click:Connect(function()
+                isEnabled = not isEnabled
+                
+                local bgColor = isEnabled and currentTheme.Primary or Color3.fromRGB(60, 60, 80)
+                local circlePos = isEnabled and UDim2.new(1, -20, 0.5, -9) or UDim2.new(0, 2, 0.5, -9)
+                
+                tween(toggleBg, {Time = 0.2}, {BackgroundColor3 = bgColor}):Play()
+                tween(toggleCircle, {Time = 0.2}, {Position = circlePos}):Play()
+                
+                toggleConfig.Callback(isEnabled)
+            end)
+
+            self:UpdateCanvasSize()
+            return {Container = container, GetValue = function() return isEnabled end}
+        end
+
         function Tab:CreateButton(config)
             local buttonConfig = {
                 Name = config.Name or "Button",
@@ -869,16 +476,14 @@ function GuiFramework:CreateWindow(config)
                 Callback = config.Callback or function() end
             }
 
-            analytics.elementsCreated = analytics.elementsCreated + 1
-
             local container = Instance.new("Frame")
             container.Parent = self.Content
-            container.Size = UDim2.new(1, 0, 0, buttonConfig.Description ~= "" and 65 or 45)
+            container.Size = UDim2.new(1, 0, 0, buttonConfig.Description ~= "" and 60 or 40)
             container.BackgroundColor3 = currentTheme.Secondary
             container.BackgroundTransparency = 0.2
             container.BorderSizePixel = 0
 
-            createCorner(container, 10)
+            createCorner(container, 8)
             createStroke(container, currentTheme.Primary, 1, 0.6)
 
             local button = Instance.new("TextButton")
@@ -893,7 +498,7 @@ function GuiFramework:CreateWindow(config)
             if buttonConfig.Description ~= "" then
                 local descLabel = Instance.new("TextLabel")
                 descLabel.Parent = container
-                descLabel.Size = UDim2.new(1, -20, 0.4, 0)
+                descLabel.Size = UDim2.new(1, -15, 0.4, 0)
                 descLabel.Position = UDim2.new(0, 10, 0.6, 0)
                 descLabel.BackgroundTransparency = 1
                 descLabel.Text = buttonConfig.Description
@@ -905,135 +510,39 @@ function GuiFramework:CreateWindow(config)
             end
 
             button.MouseEnter:Connect(function()
-                tween(container, {}, {BackgroundTransparency = 0.1})
+                tween(container, {Time = 0.2}, {BackgroundTransparency = 0.1}):Play()
             end)
 
             button.MouseLeave:Connect(function()
-                tween(container, {}, {BackgroundTransparency = 0.2})
+                tween(container, {Time = 0.2}, {BackgroundTransparency = 0.2}):Play()
             end)
 
             button.MouseButton1Click:Connect(function()
-                analytics.interactions = analytics.interactions + 1
                 buttonConfig.Callback()
             end)
 
             self:UpdateCanvasSize()
-            table.insert(self.Elements, {Type = "Button", Element = container, Config = buttonConfig})
             return container
         end
 
-        function Tab:CreateToggle(config)
-            local toggleConfig = {
-                Name = config.Name or "Toggle",
-                Description = config.Description or "",
-                Default = config.Default or false,
-                Callback = config.Callback or function() end
-            }
-
-            analytics.elementsCreated = analytics.elementsCreated + 1
-
-            local container = Instance.new("Frame")
-            container.Parent = self.Content
-            container.Size = UDim2.new(1, 0, 0, toggleConfig.Description ~= "" and 70 or 50)
-            container.BackgroundColor3 = currentTheme.Secondary
-            container.BackgroundTransparency = 0.2
-            container.BorderSizePixel = 0
-
-            createCorner(container, 10)
-            createStroke(container, currentTheme.Accent, 1, 0.6)
-
-            local label = Instance.new("TextLabel")
-            label.Parent = container
-            label.Size = UDim2.new(0.7, 0, toggleConfig.Description ~= "" and 0.5 or 1, 0)
-            label.Position = UDim2.new(0, 15, 0, 0)
-            label.BackgroundTransparency = 1
-            label.Text = toggleConfig.Name
-            label.TextColor3 = currentTheme.Text
-            label.TextSize = 14
-            label.Font = Enum.Font.Gotham
-            label.TextXAlignment = Enum.TextXAlignment.Left
-
-            if toggleConfig.Description ~= "" then
-                local descLabel = Instance.new("TextLabel")
-                descLabel.Parent = container
-                descLabel.Size = UDim2.new(1, -20, 0.5, 0)
-                descLabel.Position = UDim2.new(0, 15, 0.5, 0)
-                descLabel.BackgroundTransparency = 1
-                descLabel.Text = toggleConfig.Description
-                descLabel.TextColor3 = Color3.fromRGB(180, 180, 200)
-                descLabel.TextSize = 11
-                descLabel.Font = Enum.Font.Gotham
-                descLabel.TextXAlignment = Enum.TextXAlignment.Left
-                descLabel.TextWrapped = true
-            end
-
-            -- Toggle switch
-            local toggleBg = Instance.new("Frame")
-            toggleBg.Parent = container
-            toggleBg.Size = UDim2.new(0, 50, 0, 25)
-            toggleBg.Position = UDim2.new(1, -65, toggleConfig.Description ~= "" and 0.25 or 0.5, -12.5)
-            toggleBg.BackgroundColor3 = toggleConfig.Default and currentTheme.Primary or Color3.fromRGB(60, 60, 80)
-            toggleBg.BorderSizePixel = 0
-
-            createCorner(toggleBg, 12)
-
-            local toggleCircle = Instance.new("Frame")
-            toggleCircle.Parent = toggleBg
-            toggleCircle.Size = UDim2.new(0, 19, 0, 19)
-            toggleCircle.Position = toggleConfig.Default and UDim2.new(1, -22, 0.5, -9.5) or UDim2.new(0, 3, 0.5, -9.5)
-            toggleCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            toggleCircle.BorderSizePixel = 0
-
-            createCorner(toggleCircle, 10)
-
-            local button = Instance.new("TextButton")
-            button.Parent = container
-            button.Size = UDim2.new(1, 0, 1, 0)
-            button.BackgroundTransparency = 1
-            button.Text = ""
-
-            local isEnabled = toggleConfig.Default
-            button.MouseButton1Click:Connect(function()
-                analytics.interactions = analytics.interactions + 1
-                isEnabled = not isEnabled
-                
-                local bgColor = isEnabled and currentTheme.Primary or Color3.fromRGB(60, 60, 80)
-                local circlePos = isEnabled and UDim2.new(1, -22, 0.5, -9.5) or UDim2.new(0, 3, 0.5, -9.5)
-                
-                tween(toggleBg, {}, {BackgroundColor3 = bgColor}):Play()
-                tween(toggleCircle, {}, {Position = circlePos}):Play()
-                
-                toggleConfig.Callback(isEnabled)
-            end)
-
-            self:UpdateCanvasSize()
-            table.insert(self.Elements, {Type = "Toggle", Element = container, Config = toggleConfig})
-            return {Container = container, GetValue = function() return isEnabled end}
-        end
-
         function Tab:UpdateCanvasSize()
-            self.Content.CanvasSize = UDim2.new(0, 0, 0, self.Layout.AbsoluteContentSize.Y + 20)
+            self.Content.CanvasSize = UDim2.new(0, 0, 0, self.Layout.AbsoluteContentSize.Y + 15)
         end
 
         return Tab
     end
 
-    -- Search functionality for window
-    searchBox.Changed:Connect(function()
-        if Window.CurrentTab then
-            Window.CurrentTab:Search(searchBox.Text)
-        end
-    end)
-
+    -- FIXED SelectTab function
     function Window:SelectTab(tab)
         -- Hide all tabs
         for _, otherTab in ipairs(self.Tabs) do
             otherTab.Content.Visible = false
-            tween(otherTab.Button, {}, {BackgroundTransparency = 0.3, BackgroundColor3 = Color3.fromRGB(18, 15, 30)})
-            tween(otherTab.Glow, {}, {BackgroundTransparency = 0.9, BackgroundColor3 = Color3.fromRGB(30, 30, 50)})
-            tween(otherTab.Text, {}, {TextColor3 = Color3.fromRGB(150, 150, 180)})
-            tween(otherTab.Icon, {}, {TextColor3 = Color3.fromRGB(150, 150, 180)})
+            tween(otherTab.Button, {Time = 0.2}, {
+                BackgroundTransparency = 0.3,
+                TextColor3 = Color3.fromRGB(150, 150, 180)
+            }):Play()
             
+            -- Remove stroke if exists
             if otherTab.Button:FindFirstChild("UIStroke") then
                 otherTab.Button.UIStroke:Destroy()
             end
@@ -1042,34 +551,222 @@ function GuiFramework:CreateWindow(config)
         -- Show selected tab
         tab.Content.Visible = true
         self.CurrentTab = tab
-        self.TabTitle.Text = "• " .. tab.Name
-
-        -- Clear search when switching tabs
-        self.SearchBox.Text = ""
 
         -- Style selected tab
-        tween(tab.Button, {}, {BackgroundTransparency = 0.1, BackgroundColor3 = Color3.fromRGB(35, 30, 50)})
-        tween(tab.Glow, {}, {BackgroundTransparency = 0.5, BackgroundColor3 = tab.Config.Color})
-        tween(tab.Text, {}, {TextColor3 = currentTheme.Text})
-        tween(tab.Icon, {}, {TextColor3 = tab.Config.Color})
+        tween(tab.Button, {Time = 0.2}, {
+            BackgroundTransparency = 0.1,
+            TextColor3 = currentTheme.Text
+        }):Play()
 
         -- Add active stroke
-        local activeStroke = createStroke(tab.Button, tab.Config.Color, 1.5, 0.3)
+        createStroke(tab.Button, tab.Config.Color, 2, 0.4)
 
-        -- Update scroll sizes
-        self.TabContainer.CanvasSize = UDim2.new(0, 0, 0, self.TabLayout.AbsoluteContentSize.Y + 10)
         tab:UpdateCanvasSize()
     end
 
     return Window
 end
 
--- Framework Info
-GuiFramework.Version = "2.0"
-GuiFramework.Author = "Advanced Framework Team"
-GuiFramework.Features = {
-    "Key System", "Notifications", "All UI Components", 
-    "Themes", "Search", "Analytics", "Monetization Ready"
+-- Now create the ESP System
+local Framework = GuiFramework
+
+-- ESP Variables
+local espObjects = {}
+local espEnabled = false
+local espSettings = {
+    showNames = true,
+    showDistance = true,
+    showHealth = true,
+    showBoxes = true,
+    showTracers = false,
+    maxDistance = 1000
 }
 
-return GuiFramework
+local camera = workspace.CurrentCamera
+
+-- ESP Functions
+local function createESPForPlayer(targetPlayer)
+    if targetPlayer == player then return end
+    if espObjects[targetPlayer] then return end
+
+    local esp = {
+        player = targetPlayer,
+        connection = nil,
+        drawings = {}
+    }
+
+    -- Create drawings
+    local nameLabel = Drawing.new("Text")
+    nameLabel.Text = targetPlayer.Name
+    nameLabel.Color = Color3.fromRGB(255, 255, 255)
+    nameLabel.Size = 14
+    nameLabel.Center = true
+    nameLabel.Outline = true
+    nameLabel.OutlineColor = Color3.new(0, 0, 0)
+    nameLabel.Font = 2
+    table.insert(esp.drawings, nameLabel)
+
+    local distanceLabel = Drawing.new("Text")
+    distanceLabel.Text = "0m"
+    distanceLabel.Color = Color3.fromRGB(255, 255, 255)
+    distanceLabel.Size = 12
+    distanceLabel.Center = true
+    distanceLabel.Outline = true
+    distanceLabel.OutlineColor = Color3.new(0, 0, 0)
+    distanceLabel.Font = 2
+    table.insert(esp.drawings, distanceLabel)
+
+    local healthLabel = Drawing.new("Text")
+    healthLabel.Text = "100%"
+    healthLabel.Color = Color3.fromRGB(0, 255, 0)
+    healthLabel.Size = 12
+    healthLabel.Center = true
+    healthLabel.Outline = true
+    healthLabel.OutlineColor = Color3.new(0, 0, 0)
+    healthLabel.Font = 2
+    table.insert(esp.drawings, healthLabel)
+
+    local box = Drawing.new("Square")
+    box.Color = Color3.fromRGB(100, 200, 255)
+    box.Thickness = 1
+    box.Transparency = 1
+    box.Filled = false
+    table.insert(esp.drawings, box)
+
+    local tracer = Drawing.new("Line")
+    tracer.Color = Color3.fromRGB(255, 100, 100)
+    tracer.Thickness = 2
+    tracer.Transparency = 0.8
+    table.insert(esp.drawings, tracer)
+
+    -- Update function
+    esp.connection = RunService.Heartbeat:Connect(function()
+        if not espEnabled or not targetPlayer.Parent then
+            for _, drawing in pairs(esp.drawings) do
+                drawing.Visible = false
+            end
+            return
+        end
+
+        local character = targetPlayer.Character
+        if not character or not character:FindFirstChild("HumanoidRootPart") then
+            for _, drawing in pairs(esp.drawings) do
+                drawing.Visible = false
+            end
+            return
+        end
+
+        local humanoid = character:FindFirstChild("Humanoid")
+        local rootPart = character.HumanoidRootPart
+        local head = character:FindFirstChild("Head")
+
+        if not rootPart or not head then
+            for _, drawing in pairs(esp.drawings) do
+                drawing.Visible = false
+            end
+            return
+        end
+
+        -- Calculate distance
+        local distance = (player.Character and player.Character:FindFirstChild("HumanoidRootPart")) 
+            and (player.Character.HumanoidRootPart.Position - rootPart.Position).Magnitude or math.huge
+
+        if distance > espSettings.maxDistance then
+            for _, drawing in pairs(esp.drawings) do
+                drawing.Visible = false
+            end
+            return
+        end
+
+        -- Get screen positions
+        local rootPos, rootOnScreen = camera:WorldToViewportPoint(rootPart.Position)
+        local headPos, headOnScreen = camera:WorldToViewportPoint(head.Position + Vector3.new(0, 0.5, 0))
+        local legPos, legOnScreen = camera:WorldToViewportPoint(rootPart.Position - Vector3.new(0, 3, 0))
+
+        if not rootOnScreen then
+            for _, drawing in pairs(esp.drawings) do
+                drawing.Visible = false
+            end
+            return
+        end
+
+        -- Calculate box dimensions
+        local boxHeight = math.abs(headPos.Y - legPos.Y)
+        local boxWidth = boxHeight * 0.5
+
+        -- Update labels
+        if espSettings.showNames then
+            nameLabel.Text = targetPlayer.Name
+            nameLabel.Position = Vector2.new(rootPos.X, headPos.Y - 30)
+            nameLabel.Visible = true
+        else
+            nameLabel.Visible = false
+        end
+
+        if espSettings.showDistance then
+            distanceLabel.Text = math.floor(distance) .. "m"
+            distanceLabel.Position = Vector2.new(rootPos.X, headPos.Y - 15)
+            distanceLabel.Visible = true
+        else
+            distanceLabel.Visible = false
+        end
+
+        if espSettings.showHealth and humanoid then
+            local healthPercent = math.floor((humanoid.Health / humanoid.MaxHealth) * 100)
+            healthLabel.Text = healthPercent .. "%"
+            healthLabel.Position = Vector2.new(rootPos.X, legPos.Y + 5)
+            healthLabel.Visible = true
+            
+            -- Health color
+            if healthPercent > 75 then
+                healthLabel.Color = Color3.new(0, 1, 0)
+            elseif healthPercent > 50 then
+                healthLabel.Color = Color3.new(1, 1, 0)
+            elseif healthPercent > 25 then
+                healthLabel.Color = Color3.new(1, 0.5, 0)
+            else
+                healthLabel.Color = Color3.new(1, 0, 0)
+            end
+        else
+            healthLabel.Visible = false
+        end
+
+        -- Update box
+        if espSettings.showBoxes then
+            box.Size = Vector2.new(boxWidth, boxHeight)
+            box.Position = Vector2.new(rootPos.X - boxWidth/2, headPos.Y)
+            box.Visible = true
+        else
+            box.Visible = false
+        end
+
+        -- Update tracer
+        if espSettings.showTracers then
+            tracer.From = Vector2.new(camera.ViewportSize.X/2, camera.ViewportSize.Y)
+            tracer.To = Vector2.new(rootPos.X, rootPos.Y)
+            tracer.Visible = true
+        else
+            tracer.Visible = false
+        end
+    end)
+
+    espObjects[targetPlayer] = esp
+end
+
+local function removeESPForPlayer(targetPlayer)
+    local esp = espObjects[targetPlayer]
+    if not esp then return end
+
+    if esp.connection then
+        esp.connection:Disconnect()
+    end
+
+    for _, drawing in pairs(esp.drawings) do
+        drawing:Remove()
+    end
+
+    espObjects[targetPlayer] = nil
+end
+
+local function updateAllESP()
+    for _, targetPlayer in pairs(Players:GetPlayers
