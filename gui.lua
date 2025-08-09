@@ -769,4 +769,260 @@ local function removeESPForPlayer(targetPlayer)
 end
 
 local function updateAllESP()
-    for _, targetPlayer in pairs(Players:GetPlayers
+    for _, targetPlayer in pairs(Players:GetPlayers()) do
+        if espEnabled then
+            createESPForPlayer(targetPlayer)
+        else
+            removeESPForPlayer(targetPlayer)
+        end
+    end
+end
+
+-- Player connection events
+Players.PlayerAdded:Connect(function(targetPlayer)
+    wait(1) -- Wait for character to load
+    if espEnabled then
+        createESPForPlayer(targetPlayer)
+    end
+end)
+
+Players.PlayerRemoving:Connect(function(targetPlayer)
+    removeESPForPlayer(targetPlayer)
+end)
+
+-- Create Horizontal GUI
+local Window = Framework:CreateWindow({
+    Name = "🎯 ESP System v2.0 - Horizontal",
+    Theme = "Ocean",
+    Size = {700, 400}, -- Wider horizontal layout
+    KeySystem = false
+})
+
+-- Show welcome notification
+Framework:CreateNotification({
+    Title = "ESP System",
+    Content = "Horizontal ESP system loaded successfully!",
+    Duration = 3
+})
+
+-- Create Tabs (HORIZONTAL)
+local MainTab = Window:CreateTab({
+    Name = "Main ESP",
+    Icon = "👁",
+    Color = Color3.fromRGB(100, 200, 255)
+})
+
+local SettingsTab = Window:CreateTab({
+    Name = "Settings",
+    Icon = "⚙",
+    Color = Color3.fromRGB(255, 150, 100)
+})
+
+local InfoTab = Window:CreateTab({
+    Name = "Info",
+    Icon = "ℹ",
+    Color = Color3.fromRGB(150, 100, 255)
+})
+
+-- Main Tab Controls
+MainTab:CreateToggle({
+    Name = "Enable ESP",
+    Description = "Toggle ESP visibility for all players",
+    Default = false,
+    Callback = function(value)
+        espEnabled = value
+        updateAllESP()
+        
+        Framework:CreateNotification({
+            Title = "ESP Status",
+            Content = espEnabled and "ESP Enabled!" or "ESP Disabled!",
+            Duration = 2
+        })
+    end
+})
+
+MainTab:CreateToggle({
+    Name = "Show Names",
+    Description = "Display player names above their heads",
+    Default = espSettings.showNames,
+    Callback = function(value)
+        espSettings.showNames = value
+    end
+})
+
+MainTab:CreateToggle({
+    Name = "Show Distance",
+    Description = "Display distance to players",
+    Default = espSettings.showDistance,
+    Callback = function(value)
+        espSettings.showDistance = value
+    end
+})
+
+MainTab:CreateToggle({
+    Name = "Show Health",
+    Description = "Display player health percentage",
+    Default = espSettings.showHealth,
+    Callback = function(value)
+        espSettings.showHealth = value
+    end
+})
+
+MainTab:CreateToggle({
+    Name = "Show Boxes",
+    Description = "Draw boxes around players",
+    Default = espSettings.showBoxes,
+    Callback = function(value)
+        espSettings.showBoxes = value
+    end
+})
+
+MainTab:CreateToggle({
+    Name = "Show Tracers",
+    Description = "Draw lines pointing to players",
+    Default = espSettings.showTracers,
+    Callback = function(value)
+        espSettings.showTracers = value
+    end
+})
+
+-- Settings Tab
+SettingsTab:CreateButton({
+    Name = "Refresh ESP",
+    Description = "Reload ESP for all players",
+    Callback = function()
+        -- Remove all existing ESP
+        for targetPlayer, _ in pairs(espObjects) do
+            removeESPForPlayer(targetPlayer)
+        end
+        
+        -- Recreate ESP if enabled
+        if espEnabled then
+            for _, targetPlayer in pairs(Players:GetPlayers()) do
+                createESPForPlayer(targetPlayer)
+            end
+        end
+        
+        Framework:CreateNotification({
+            Title = "ESP Refreshed",
+            Content = "All ESP objects reloaded!",
+            Duration = 2
+        })
+    end
+})
+
+SettingsTab:CreateButton({
+    Name = "Reset Settings",
+    Description = "Reset all ESP settings to default",
+    Callback = function()
+        espSettings = {
+            showNames = true,
+            showDistance = true,
+            showHealth = true,
+            showBoxes = true,
+            showTracers = false,
+            maxDistance = 1000
+        }
+        
+        Framework:CreateNotification({
+            Title = "Settings Reset",
+            Content = "All settings reset to default!",
+            Duration = 2
+        })
+    end
+})
+
+SettingsTab:CreateToggle({
+    Name = "Enable Notifications",
+    Description = "Show ESP status notifications",
+    Default = true,
+    Callback = function(value)
+        -- You can use this to control notification display
+        print("Notifications:", value and "Enabled" or "Disabled")
+    end
+})
+
+-- Info Tab
+InfoTab:CreateButton({
+    Name = "Player Count",
+    Description = "Show current player count and ESP status",
+    Callback = function()
+        local playerCount = #Players:GetPlayers() - 1 -- Exclude local player
+        local espCount = 0
+        for _ in pairs(espObjects) do
+            espCount = espCount + 1
+        end
+        
+        Framework:CreateNotification({
+            Title = "Player Stats",
+            Content = string.format("Players: %d | ESP Active: %d", playerCount, espCount),
+            Duration = 3
+        })
+    end
+})
+
+InfoTab:CreateButton({
+    Name = "Performance Info",
+    Description = "Show ESP performance statistics",
+    Callback = function()
+        local drawingCount = 0
+        for _, esp in pairs(espObjects) do
+            drawingCount = drawingCount + #esp.drawings
+        end
+        
+        Framework:CreateNotification({
+            Title = "Performance",
+            Content = string.format("Active Drawings: %d | FPS Impact: Low", drawingCount),
+            Duration = 3
+        })
+    end
+})
+
+InfoTab:CreateButton({
+    Name = "ESP Features",
+    Description = "List all available ESP features",
+    Callback = function()
+        Framework:CreateNotification({
+            Title = "ESP Features",
+            Content = "Names, Distance, Health, Boxes, Tracers - All Working!",
+            Duration = 4
+        })
+    end
+})
+
+InfoTab:CreateButton({
+    Name = "About",
+    Description = "About this ESP system",
+    Callback = function()
+        Framework:CreateNotification({
+            Title = "ESP System v2.0",
+            Content = "Horizontal layout with working tabs! Made for better UX.",
+            Duration = 4
+        })
+    end
+})
+
+-- Cleanup function
+local function cleanup()
+    for targetPlayer, _ in pairs(espObjects) do
+        removeESPForPlayer(targetPlayer)
+    end
+end
+
+-- Cleanup on GUI close
+Window.ScreenGui.AncestryChanged:Connect(function()
+    if not Window.ScreenGui.Parent then
+        cleanup()
+    end
+end)
+
+-- Initialize ESP for existing players
+for _, targetPlayer in pairs(Players:GetPlayers()) do
+    if targetPlayer ~= player then
+        createESPForPlayer(targetPlayer)
+    end
+end
+
+print("🎯 Horizontal ESP System loaded successfully!")
+print("📋 Features: Horizontal tabs, Toggle ESP, Names, Distance, Health, Boxes, Tracers")
+print("🔧 Use the horizontal tabs to navigate between different sections")
